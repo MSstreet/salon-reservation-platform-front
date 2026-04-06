@@ -1,15 +1,41 @@
-import { Link, useLocation } from "react-router";
-import { Scissors, Calendar, List, Home, MapPin } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { Scissors, Calendar, Home, MapPin, LogIn, LogOut, Menu, X } from "lucide-react";
+
+const navItems = [
+  { to: "/", icon: Home, label: "홈", exact: true },
+  { to: "/salons", icon: MapPin, label: "미용실" },
+  { to: "/my-bookings", icon: Calendar, label: "예약 내역" },
+];
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("accessToken"));
 
-  const isActive = (path: string) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
+  useEffect(() => {
+    setIsLoggedIn(!!localStorage.getItem("accessToken"));
+  }, [location]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
+  const isActive = (path: string, exact?: boolean) => {
+    if (exact) return location.pathname === path;
     return location.pathname.startsWith(path);
   };
+
+  const linkClass = (path: string, exact?: boolean) =>
+    `flex items-center gap-2 px-3 py-2 rounded-md transition-colors ${
+      isActive(path, exact)
+        ? "text-rose-600 bg-rose-50"
+        : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+    }`;
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -20,65 +46,68 @@ export default function Header() {
             <span className="text-xl font-semibold text-gray-900">미용실 예약</span>
           </Link>
 
-          <nav className="flex gap-6">
-            <Link
-              to="/"
-              className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
-                isActive("/") && location.pathname === "/"
-                  ? "text-rose-600 bg-rose-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <Home className="w-4 h-4" />
-              <span>홈</span>
-            </Link>
-            <Link
-              to="/salons"
-              className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
-                isActive("/salons")
-                  ? "text-rose-600 bg-rose-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <MapPin className="w-4 h-4" />
-              <span>미용실</span>
-            </Link>
-            <Link
-              to="/services"
-              className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
-                isActive("/services")
-                  ? "text-rose-600 bg-rose-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <List className="w-4 h-4" />
-              <span>서비스</span>
-            </Link>
-            <Link
-              to="/booking"
-              className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
-                isActive("/booking")
-                  ? "text-rose-600 bg-rose-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              <span>예약하기</span>
-            </Link>
-            <Link
-              to="/my-bookings"
-              className={`flex items-center gap-1 px-3 py-2 rounded-md transition-colors ${
-                isActive("/my-bookings")
-                  ? "text-rose-600 bg-rose-50"
-                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
-              }`}
-            >
-              <Calendar className="w-4 h-4" />
-              <span>예약 내역</span>
-            </Link>
+          {/* Desktop nav */}
+          <nav className="hidden md:flex gap-1">
+            {navItems.map(({ to, icon: Icon, label, exact }) => (
+              <Link key={to} to={to} className={linkClass(to, exact)}>
+                <Icon className="w-4 h-4" />
+                <span>{label}</span>
+              </Link>
+            ))}
+            {isLoggedIn ? (
+              <button onClick={handleLogout} className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                <LogOut className="w-4 h-4" />
+                <span>로그아웃</span>
+              </button>
+            ) : (
+              <Link to="/login" className={linkClass("/login")}>
+                <LogIn className="w-4 h-4" />
+                <span>로그인</span>
+              </Link>
+            )}
           </nav>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden p-2 rounded-md text-gray-600 hover:bg-gray-50"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="메뉴"
+          >
+            {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
+          {navItems.map(({ to, icon: Icon, label, exact }) => (
+            <Link
+              key={to}
+              to={to}
+              className={linkClass(to, exact)}
+              onClick={() => setMenuOpen(false)}
+            >
+              <Icon className="w-4 h-4" />
+              <span>{label}</span>
+            </Link>
+          ))}
+          {isLoggedIn ? (
+            <button
+              onClick={() => { setMenuOpen(false); handleLogout(); }}
+              className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-gray-600 hover:text-gray-900 hover:bg-gray-50 w-full"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>로그아웃</span>
+            </button>
+          ) : (
+            <Link to="/login" className={linkClass("/login")} onClick={() => setMenuOpen(false)}>
+              <LogIn className="w-4 h-4" />
+              <span>로그인</span>
+            </Link>
+          )}
+        </div>
+      )}
     </header>
   );
 }
