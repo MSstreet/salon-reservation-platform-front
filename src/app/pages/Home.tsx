@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Calendar, Scissors, Star, Clock, MapPin } from "lucide-react";
+import { Scissors, Star, Clock, MapPin } from "lucide-react";
 import { Button } from "../components/ui/button";
 import { ImageWithFallback } from "../components/figma/ImageWithFallback";
 
@@ -12,10 +12,10 @@ export default function Home() {
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-5xl font-bold mb-4">당신의 스타일을 완성하세요</h1>
           <p className="text-xl mb-8">전문 스타일리스트가 함께하는 프리미엄 미용 서비스</p>
-          <Link to="/booking">
-            <Button size="lg" className="bg-white text-rose-600 hover:bg-gray-100 text-lg px-8 py-6">
-              <Calendar className="w-5 h-5 mr-2" />
-              지금 예약하기
+          <Link to="/salons">
+            <Button size="lg" className="text-lg px-8 py-6 bg-transparent border-2 border-white text-white hover:bg-white hover:text-rose-600 justify-center">
+              <MapPin className="w-5 h-5 mr-2" />
+              미용실 보기
             </Button>
           </Link>
         </div>
@@ -99,23 +99,9 @@ export default function Home() {
       {/* CTA Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
         <h2 className="text-3xl font-bold mb-4">지금 바로 예약하세요</h2>
-        <p className="text-gray-600 mb-8 text-lg">
+        <p className="text-gray-600 text-lg">
           새로운 스타일로 당신의 매력을 발견하세요
         </p>
-        <div className="flex gap-4 justify-center">
-          <Link to="/salons">
-            <Button size="lg" variant="outline" className="text-lg px-8 py-6 border-rose-600 text-rose-600 hover:bg-rose-50">
-              <MapPin className="w-5 h-5 mr-2" />
-              미용실 보기
-            </Button>
-          </Link>
-          <Link to="/booking">
-            <Button size="lg" className="bg-rose-600 hover:bg-rose-700 text-white text-lg px-8 py-6">
-              <Calendar className="w-5 h-5 mr-2" />
-              바로 예약하기
-            </Button>
-          </Link>
-        </div>
       </section>
     </div>
   );
